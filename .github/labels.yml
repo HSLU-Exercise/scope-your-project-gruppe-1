@@ -1,1 +1,68 @@
+labels:
+  # Priority Labels
+  - name: "priority-critical"
+    color: "FF0000"
+    description: "Critical priority - immediate attention needed"
+  
+  - name: "priority-high"
+    color: "FF6600"
+    description: "High priority"
+  
+  - name: "priority-medium"
+    color: "FFAA00"
+    description: "Medium priority"
+  
+  - name: "priority-low"
+    color: "FFDD00"
+    description: "Low priority"
 
+  # Type Labels
+  - name: "bug"
+    color: "d73a4a"
+    description: "Something isn't working"
+  
+  - name: "enhancement"
+    color: "a2eeef"
+    description: "New feature or request"
+  
+  - name: "documentation"
+    color: "0075ca"
+    description: "Improvements or additions to documentation"
+  
+  - name: "security"
+    color: "EE0701"
+    description: "Security vulnerability or concern"
+
+  # Status Labels
+  - name: "needs-triage"
+    color: "FBCA04"
+    description: "Needs to be triaged"
+  
+  - name: "in-progress"
+    color: "0E8A16"
+    description: "Currently being worked on"
+  
+  - name: "blocked"
+    color: "B60205"
+    description: "Blocked by another issue or external factor"
+  
+  - name: "ready-for-review"
+    color: "C2E0C6"
+    description: "Ready for code review"
+
+  # Other Labels
+  - name: "good first issue"
+    color: "7057ff"
+    description: "Good for newcomers"
+  
+  - name: "help wanted"
+    color: "008672"
+    description: "Extra attention is needed"
+  
+  - name: "duplicate"
+    color: "cfd3d7"
+    description: "This issue or pull request already exists"
+  
+  - name: "wontfix"
+    color: "ffffff"
+    description: "This will not be worked on"

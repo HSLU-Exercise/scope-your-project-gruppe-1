@@ -1,93 +1,130 @@
-name: Auto Triage Issues
+name: 🤖 Auto Triage Issues
 
 on:
   issues:
     types: [opened, edited]
+
+# WICHTIG: Permissions explizit setzen!
+permissions:
+  issues: write
+  contents: read
 
 jobs:
   auto-label:
     runs-on: ubuntu-latest
     steps:
       - name: Check out code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       
       - name: Auto-label based on title
-        uses: actions/github-script@v6
+        uses: actions/github-script@v7
         with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const issue = context.payload.issue;
-            const title = issue.title.toLowerCase();
-            const labels = [];
-            
-            // Add priority based on keywords
-            if (title.includes('critical') || title.includes('urgent')) {
-              labels.push('priority-critical');
-            } else if (title.includes('high priority')) {
-              labels.push('priority-high');
-            }
-            
-            // Add type based on prefix
-            if (title.startsWith('[bug]')) {
-              labels.push('bug');
-            } else if (title.startsWith('[feature]')) {
-              labels.push('enhancement');
-            } else if (title.startsWith('[docs]')) {
-              labels.push('documentation');
-            } else if (title.startsWith('[security]')) {
-              labels.push('security');
-            }
-            
-            // Add needs-triage if no priority set
-            if (!labels.some(l => l.includes('priority'))) {
-              labels.push('needs-triage');
-            }
-            
-            if (labels.length > 0) {
-              await github.rest.issues.addLabels({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: issue.number,
-                labels: labels
-              });
+            try {
+              const issue = context.payload.issue;
+              const title = issue.title.toLowerCase();
+              const body = issue.body ? issue.body.toLowerCase() : '';
+              const labels = [];
+              
+              // Add type labels based on title prefix
+              if (title.includes('[bug]')) {
+                labels.push('bug');
+              } else if (title.includes('[feature]')) {
+                labels.push('enhancement');
+              } else if (title.includes('[docs]')) {
+                labels.push('documentation');
+              } else if (title.includes('[security]')) {
+                labels.push('security');
+              }
+              
+              // Add priority based on keywords
+              if (title.includes('critical') || title.includes('urgent') || body.includes('critical')) {
+                labels.push('P0: Critical');
+              } else if (title.includes('high priority') || body.includes('high priority')) {
+                labels.push('P1: High');
+              }
+              
+              // Add needs-triage if no priority set
+              if (!labels.some(l => l.includes('P0') || l.includes('P1'))) {
+                labels.push('needs-triage');
+              }
+              
+              // Only add labels if we have some to add
+              if (labels.length > 0) {
+                console.log(`Adding labels: ${labels.join(', ')}`);
+                await github.rest.issues.addLabels({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issue.number,
+                  labels: labels
+                });
+              } else {
+                console.log('No labels to add based on title/body');
+              }
+            } catch (error) {
+              console.error('Error adding labels:', error);
+              throw error;
             }
 
       - name: Auto-assign based on labels
-        uses: actions/github-script@v6
+        uses: actions/github-script@v7
         with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const issue = context.payload.issue;
-            const labels = issue.labels.map(l => l.name);
-            
-            // Auto-assign security issues
-            if (labels.includes('security')) {
-              await github.rest.issues.addAssignees({
+            try {
+              const issue = context.payload.issue;
+              
+              // Get the current labels
+              const { data: labels } = await github.rest.issues.listLabelsOnIssue({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                issue_number: issue.number,
-                assignees: ['security-team-member'] // Replace with actual username
+                issue_number: issue.number
               });
+              
+              const labelNames = labels.map(l => l.name);
+              
+              // Auto-assign based on label type
+              // WICHTIG: Ersetze diese Usernamen mit echten GitHub Usernamen aus deinem Team!
+              if (labelNames.includes('security') || labelNames.includes('P0: Critical')) {
+                // Ersetze 'security-team-member' mit einem echten Username
+                console.log('Security or critical issue detected, would assign to security team');
+                // Uncomment und passe an wenn du echte User hast:
+                // await github.rest.issues.addAssignees({
+                //   owner: context.repo.owner,
+                //   repo: context.repo.repo,
+                //   issue_number: issue.number,
+                //   assignees: ['actual-username']
+                // });
+              }
+            } catch (error) {
+              console.error('Error in auto-assign:', error);
+              // Don't fail the whole workflow if assignment fails
             }
 
       - name: Comment on new issues
-        uses: actions/github-script@v6
+        if: github.event.action == 'opened'
+        uses: actions/github-script@v7
         with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const issue = context.payload.issue;
-            if (context.payload.action === 'opened') {
+            try {
               await github.rest.issues.createComment({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                issue_number: issue.number,
+                issue_number: context.payload.issue.number,
                 body: `Thanks for creating this issue! 🎯
                 
                 Our team will triage this issue soon. In the meantime, please ensure you've provided all necessary information.
                 
                 **Triage Process:**
                 - 🏷️ Labels will be assigned
-                - 👤 An owner will be designated
+                - 👤 An owner will be designated if needed
                 - 📅 Milestone will be set if applicable
                 - 🔍 Duplicates will be checked
                 
                 Expected response time: Within 48 hours`
               });
+            } catch (error) {
+              console.error('Error creating comment:', error);
             }

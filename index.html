@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Universe - Enter the Future</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: #000;
+            color: #fff;
+            overflow-x: hidden;
+            cursor: none;
+        }
+
+        /* Custom Cursor */
+        .cursor {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #00ffff;
+            border-radius: 50%;
+            position: fixed;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            transition: all 0.3s ease;
+            z-index: 9999;
+            mix-blend-mode: difference;
+        }
+
+        .cursor-follower {
+            width: 40px;
+            height: 40px;
+            background: rgba(0, 255, 255, 0.1);
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            border-radius: 50%;
+            position: fixed;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            transition: all 0.5s ease;
+            z-index: 9998;
+        }
+
+        /* Animated Background */
+        #particles-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        /* Glitch Effect */
+        @keyframes glitch {
+            0%, 100% {
+                text-shadow: 
+                    -2px 0 #ff00de,
+                    2px 0 #00ffff;
+            }
+            25% {
+                text-shadow: 
+                    2px 0 #ff00de,
+                    -2px 0 #00ffff;
+            }
+            50% {
+                text-shadow: 
+                    -2px 0 #ff00de,
+                    2px 0 #00ffff,
+                    0 0 10px #fff;
+            }
+        }
+
+        /* Header */
+        header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 20px 50px;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+            background: rgba(0, 0, 0, 0.3);
+            border-bottom: 1px solid rgba(0, 255, 255, 0.3);
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            background: linear-gradient(45deg, #00ffff, #ff00de);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: glitch 3s infinite;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 30px;
+        }
+
+        .nav-links a {
+            color: #fff;
+            text-decoration: none;
+            position: relative;
+            transition: all 0.3s;
+            padding: 5px 0;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #00ffff, #ff00de);
+            transition: width 0.3s;
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        .nav-links a:hover {
+            text-shadow: 0 0 10px #00ffff;
+        }
+
+        /* Hero Section */
+        .hero {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .hero-content {
+            text-align: center;
+            z-index: 2;
+        }
+
+        .hero h1 {
+            font-size: clamp(3rem, 8vw, 6rem);
+            margin-bottom: 20px;
+            background: linear-gradient(45deg, #00ffff, #ff00de, #ffff00, #00ffff);
+            background-size: 200% 200%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradient 3s ease infinite, float 4s ease-in-out infinite;
+        }
+
+        @keyframes gradient {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .hero p {
+            font-size: 1.5rem;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 30px;
+            opacity: 0;
+            animation: fadeInUp 1s ease forwards 0.5s;
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(-10px);
+            }
+        }
+
+        .cta-button {
+            display: inline-block;
+            padding: 15px 40px;
+            background: transparent;
+            border: 2px solid #00ffff;
+            color: #00ffff;
+            text-decoration: none;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .cta-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, #00ffff, transparent);
+            transition: left 0.5s;
+        }
+
+        .cta-button:hover::before {
+            left: 100%;
+        }
+
+        .cta-button:hover {
+            box-shadow: 0 0 20px #00ffff, inset 0 0 20px rgba(0, 255, 255, 0.2);
+            text-shadow: 0 0 10px #00ffff;
+        }
+
+        /* Feature Cards */
+        .features {
+            padding: 100px 50px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            padding: 30px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s;
+            backdrop-filter: blur(10px);
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(0, 255, 255, 0.1) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .feature-card:hover::before {
+            opacity: 1;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 40px rgba(0, 255, 255, 0.3);
+            border-color: #00ffff;
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            display: inline-block;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .feature-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            background: linear-gradient(45deg, #00ffff, #ff00de);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Matrix Rain Effect */
+        .matrix-rain {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            opacity: 0.1;
+            z-index: -1;
+        }
+
+        /* Scroll Progress Bar */
+        .progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #00ffff, #ff00de, #ffff00);
+            z-index: 10000;
+            transition: width 0.2s;
+        }
+
+        /* Loading Screen */
+        .loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10001;
+            transition: opacity 1s, visibility 1s;
+        }
+
+        .loader.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .loader-circle {
+            width: 100px;
+            height: 100px;
+            border: 3px solid rgba(0, 255, 255, 0.3);
+            border-top-color: #00ffff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Tech Grid */
+        .tech-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            padding: 50px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .tech-item {
+            aspect-ratio: 1;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(0, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+
+        .tech-item::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: radial-gradient(circle, rgba(0, 255, 255, 0.5) 0%, transparent 70%);
+            transition: all 0.5s;
+            transform: translate(-50%, -50%);
+        }
+
+        .tech-item:hover::after {
+            width: 150%;
+            height: 150%;
+        }
+
+        .tech-item:hover {
+            transform: scale(1.05);
+            border-color: #00ffff;
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.5);
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 50px;
+            border-top: 1px solid rgba(0, 255, 255, 0.3);
+            background: rgba(0, 0, 0, 0.5);
+        }
+
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 20px;
+        }
+
+        .social-links a {
+            color: #00ffff;
+            font-size: 1.5rem;
+            transition: all 0.3s;
+        }
+
+        .social-links a:hover {
+            transform: translateY(-5px);
+            text-shadow: 0 5px 20px #00ffff;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+            
+            .hero h1 {
+                font-size: 3rem;
+            }
+            
+            .tech-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div class="loader" id="loader">
+        <div class="loader-circle"></div>
+    </div>
+
+    <!-- Progress Bar -->
+    <div class="progress-bar" id="progressBar"></div>
+
+    <!-- Custom Cursor -->
+    <div class="cursor"></div>
+    <div class="cursor-follower"></div>
+
+    <!-- Particles Canvas -->
+    <canvas id="particles-canvas"></canvas>
+
+    <!-- Matrix Rain -->
+    <canvas class="matrix-rain" id="matrix"></canvas>
+
+    <!-- Header -->
+    <header>
+        <nav>
+            <div class="logo">DIGITAL UNIVERSE</div>
+            <ul class="nav-links">
+                <li><a href="#home">Home</a></li>
+                <li><a href="#features">Features</a></li>
+                <li><a href="#tech">Technology</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero" id="home">
+        <div class="hero-content">
+            <h1>Welcome to the Future</h1>
+            <p>Experience the next generation of digital innovation</p>
+            <a href="#features" class="cta-button">Explore Now</a>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features" id="features">
+        <div class="feature-card">
+            <div class="feature-icon">🚀</div>
+            <h3>Lightning Fast</h3>
+            <p>Experience unprecedented speed with our quantum-powered infrastructure.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">🔒</div>
+            <h3>Ultra Secure</h3>
+            <p>Military-grade encryption protecting your digital assets 24/7.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">🌐</div>
+            <h3>Global Network</h3>
+            <p>Connected to millions of nodes across the digital universe.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">⚡</div>
+            <h3>AI Powered</h3>
+            <p>Advanced artificial intelligence learning and adapting in real-time.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">🎯</div>
+            <h3>Precision Control</h3>
+            <p>Microscopic accuracy in every digital interaction.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">♾️</div>
+            <h3>Infinite Scale</h3>
+            <p>Unlimited expansion capabilities for your growing needs.</p>
+        </div>
+    </section>
+
+    <!-- Tech Grid -->
+    <section class="tech-grid" id="tech">
+        <div class="tech-item">⚛️</div>
+        <div class="tech-item">🔮</div>
+        <div class="tech-item">🌌</div>
+        <div class="tech-item">🔭</div>
+        <div class="tech-item">🛸</div>
+        <div class="tech-item">🌟</div>
+        <div class="tech-item">💫</div>
+        <div class="tech-item">🌀</div>
+        <div class="tech-item">✨</div>
+    </section>
+
+    <!-- Footer -->
+    <footer id="contact">
+        <p>&copy; 2024 Digital Universe. Pushing boundaries since the future.</p>
+        <div class="social-links">
+            <a href="#">📧</a>
+            <a href="#">🐦</a>
+            <a href="#">💼</a>
+            <a href="#">🎮</a>
+        </div>
+    </footer>
+
+    <script>
+        // Loading Screen
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.getElementById('loader').classList.add('hidden');
+            }, 1500);
+        });
+
+        // Custom Cursor
+        const cursor = document.querySelector('.cursor');
+        const follower = document.querySelector('.cursor-follower');
+
+        document.addEventListener('mousemove', (e) => {
+            cursor.style.left = e.clientX + 'px';
+            cursor.style.top = e.clientY + 'px';
+            
+            setTimeout(() => {
+                follower.style.left = e.clientX + 'px';
+                follower.style.top = e.clientY + 'px';
+            }, 100);
+        });
+
+        // Scroll Progress Bar
+        window.addEventListener('scroll', () => {
+            const scrollTop = window.scrollY;
+            const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+            const scrollPercent = (scrollTop / docHeight) * 100;
+            document.getElementById('progressBar').style.width = scrollPercent + '%';
+        });
+
+        // Particles Background
+        const canvas = document.getElementById('particles-canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 2;
+                this.speedX = (Math.random() - 0.5) * 0.5;
+                this.speedY = (Math.random() - 0.5) * 0.5;
+                this.opacity = Math.random();
+            }
+
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+
+                if (this.x > canvas.width) this.x = 0;
+                if (this.x < 0) this.x = canvas.width;
+                if (this.y > canvas.height) this.y = 0;
+                if (this.y < 0) this.y = canvas.height;
+            }
+
+            draw() {
+                ctx.fillStyle = `rgba(0, 255, 255, ${this.opacity})`;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        const particles = [];
+        for (let i = 0; i < 100; i++) {
+            particles.push(new Particle());
+        }
+
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            particles.forEach(particle => {
+                particle.update();
+                particle.draw();
+            });
+
+            // Draw connections
+            particles.forEach((particle, index) => {
+                particles.slice(index + 1).forEach(otherParticle => {
+                    const distance = Math.hypot(particle.x - otherParticle.x, particle.y - otherParticle.y);
+                    if (distance < 100) {
+                        ctx.strokeStyle = `rgba(0, 255, 255, ${0.2 * (1 - distance / 100)})`;
+                        ctx.lineWidth = 0.5;
+                        ctx.beginPath();
+                        ctx.moveTo(particle.x, particle.y);
+                        ctx.lineTo(otherParticle.x, otherParticle.y);
+                        ctx.stroke();
+                    }
+                });
+            });
+
+            requestAnimationFrame(animateParticles);
+        }
+
+        animateParticles();
+
+        // Matrix Rain Effect
+        const matrix = document.getElementById('matrix');
+        const mCtx = matrix.getContext('2d');
+        matrix.width = window.innerWidth;
+        matrix.height = window.innerHeight;
+
+        const matrixChars = '01';
+        const fontSize = 14;
+        const columns = matrix.width / fontSize;
+        const drops = [];
+
+        for (let i = 0; i < columns; i++) {
+            drops[i] = Math.random() * -100;
+        }
+
+        function drawMatrix() {
+            mCtx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+            mCtx.fillRect(0, 0, matrix.width, matrix.height);
+            
+            mCtx.fillStyle = '#00ffff';
+            mCtx.font = fontSize + 'px monospace';
+
+            for (let i = 0; i < drops.length; i++) {
+                const text = matrixChars.charAt(Math.floor(Math.random() * matrixChars.length));
+                mCtx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+                if (drops[i] * fontSize > matrix.height && Math.random() > 0.975) {
+                    drops[i] = 0;
+                }
+                drops[i]++;
+            }
+        }
+
+        setInterval(drawMatrix, 35);
+
+        // Smooth Scrolling
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        // Interactive Hover Effects
+        const cards = document.querySelectorAll('.feature-card, .tech-item');
+        cards.forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'scale(1.05) rotateY(5deg)';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'scale(1) rotateY(0deg)';
+            });
+        });
+
+        // Window Resize Handler
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            matrix.width = window.innerWidth;
+            matrix.height = window.innerHeight;
+        });
+
+        // Add parallax effect to hero section
+        window.addEventListener('scroll', () => {
+            const scrolled = window.pageYOffset;
+            const hero = document.querySelector('.hero-content');
+            hero.style.transform = `translateY(${scrolled * 0.5}px)`;
+            hero.style.opacity = 1 - scrolled / 600;
+        });
+
+        // Console Easter Egg
+        console.log('%c Welcome to the Digital Universe! 🌌', 'font-size: 20px; color: #00ffff; text-shadow: 0 0 10px #00ffff;');
+        console.log('%c You found the secret console! 🎯', 'color: #ff00de;');
+    </script>
+</body>
+</html>

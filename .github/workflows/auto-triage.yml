@@ -1,6 +1,93 @@
-Status: triage
-Actions:
-  - Label vergeben (Kategorie)
-  - Priorität festlegen
-  - Assignee zuweisen
-  - Milestone setzen
+name: Auto Triage Issues
+
+on:
+  issues:
+    types: [opened, edited]
+
+jobs:
+  auto-label:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+      
+      - name: Auto-label based on title
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const issue = context.payload.issue;
+            const title = issue.title.toLowerCase();
+            const labels = [];
+            
+            // Add priority based on keywords
+            if (title.includes('critical') || title.includes('urgent')) {
+              labels.push('priority-critical');
+            } else if (title.includes('high priority')) {
+              labels.push('priority-high');
+            }
+            
+            // Add type based on prefix
+            if (title.startsWith('[bug]')) {
+              labels.push('bug');
+            } else if (title.startsWith('[feature]')) {
+              labels.push('enhancement');
+            } else if (title.startsWith('[docs]')) {
+              labels.push('documentation');
+            } else if (title.startsWith('[security]')) {
+              labels.push('security');
+            }
+            
+            // Add needs-triage if no priority set
+            if (!labels.some(l => l.includes('priority'))) {
+              labels.push('needs-triage');
+            }
+            
+            if (labels.length > 0) {
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                labels: labels
+              });
+            }
+
+      - name: Auto-assign based on labels
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const issue = context.payload.issue;
+            const labels = issue.labels.map(l => l.name);
+            
+            // Auto-assign security issues
+            if (labels.includes('security')) {
+              await github.rest.issues.addAssignees({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                assignees: ['security-team-member'] // Replace with actual username
+              });
+            }
+
+      - name: Comment on new issues
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const issue = context.payload.issue;
+            if (context.payload.action === 'opened') {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                body: `Thanks for creating this issue! 🎯
+                
+                Our team will triage this issue soon. In the meantime, please ensure you've provided all necessary information.
+                
+                **Triage Process:**
+                - 🏷️ Labels will be assigned
+                - 👤 An owner will be designated
+                - 📅 Milestone will be set if applicable
+                - 🔍 Duplicates will be checked
+                
+                Expected response time: Within 48 hours`
+              });
+            }

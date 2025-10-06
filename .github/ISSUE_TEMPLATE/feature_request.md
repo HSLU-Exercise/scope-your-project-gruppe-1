@@ -1,26 +1,19 @@
-
 ---
-name: Bug Report
-about: Fehler melden
-title: '[BUG] '
-labels: bug, triage
+name: Feature Request
+about: Neue Funktion vorschlagen
+title: '[FEATURE] '
+labels: enhancement, triage
 assignees: ''
 ---
 
-**Beschreibung**
-Kurze Beschreibung des Fehlers
+**Problem**
+Welches Problem soll gelöst werden?
 
-**Reproduktion**
-1. Schritt 1
-2. Schritt 2
-3. Fehler tritt auf
+**Lösung**
+Beschreibe die gewünschte Lösung
 
-**Erwartetes Verhalten**
-Was sollte passieren?
+**Alternativen**
+Andere mögliche Ansätze
 
-**Screenshots**
-Falls vorhanden
-
-**Umgebung**
-- OS: [z.B. Windows 10]
-- Version: [z.B. 1.0.0]
+**Zusätzlicher Kontext**
+Weitere relevante Informationen

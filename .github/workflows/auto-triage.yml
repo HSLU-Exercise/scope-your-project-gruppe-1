@@ -4,11 +4,6 @@ on:
   issues:
     types: [opened, edited]
 
-# WICHTIG: Permissions explizit setzen!
-permissions:
-  issues: write
-  contents: read
-
 jobs:
   auto-label:
     runs-on: ubuntu-latest
@@ -19,13 +14,16 @@ jobs:
       - name: Auto-label based on title
         uses: actions/github-script@v7
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          # WICHTIG: Verwende deinen TRIAGE_TOKEN statt GITHUB_TOKEN
+          github-token: ${{ secrets.TRIAGE_TOKEN }}
           script: |
             try {
               const issue = context.payload.issue;
               const title = issue.title.toLowerCase();
               const body = issue.body ? issue.body.toLowerCase() : '';
               const labels = [];
+              
+              console.log(`Processing issue #${issue.number}: ${issue.title}`);
               
               // Add type labels based on title prefix
               if (title.includes('[bug]')) {
@@ -43,34 +41,39 @@ jobs:
                 labels.push('P0: Critical');
               } else if (title.includes('high priority') || body.includes('high priority')) {
                 labels.push('P1: High');
+              } else if (title.includes('medium priority')) {
+                labels.push('P2: Medium');
               }
               
               // Add needs-triage if no priority set
-              if (!labels.some(l => l.includes('P0') || l.includes('P1'))) {
+              if (!labels.some(l => l.startsWith('P'))) {
                 labels.push('needs-triage');
               }
               
               // Only add labels if we have some to add
               if (labels.length > 0) {
                 console.log(`Adding labels: ${labels.join(', ')}`);
+                
                 await github.rest.issues.addLabels({
                   owner: context.repo.owner,
                   repo: context.repo.repo,
                   issue_number: issue.number,
                   labels: labels
                 });
+                
+                console.log('✅ Labels added successfully');
               } else {
                 console.log('No labels to add based on title/body');
               }
             } catch (error) {
-              console.error('Error adding labels:', error);
-              throw error;
+              console.error('❌ Error adding labels:', error.message);
+              core.setFailed(error.message);
             }
 
       - name: Auto-assign based on labels
         uses: actions/github-script@v7
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.TRIAGE_TOKEN }}
           script: |
             try {
               const issue = context.payload.issue;
@@ -83,48 +86,89 @@ jobs:
               });
               
               const labelNames = labels.map(l => l.name);
+              console.log(`Current labels: ${labelNames.join(', ')}`);
               
-              // Auto-assign based on label type
-              // WICHTIG: Ersetze diese Usernamen mit echten GitHub Usernamen aus deinem Team!
-              if (labelNames.includes('security') || labelNames.includes('P0: Critical')) {
-                // Ersetze 'security-team-member' mit einem echten Username
-                console.log('Security or critical issue detected, would assign to security team');
-                // Uncomment und passe an wenn du echte User hast:
-                // await github.rest.issues.addAssignees({
-                //   owner: context.repo.owner,
-                //   repo: context.repo.repo,
-                //   issue_number: issue.number,
-                //   assignees: ['actual-username']
-                // });
+              // Auto-assign logic
+              // WICHTIG: Ersetze diese mit echten GitHub Usernamen aus deinem Team!
+              const assignments = {
+                'security': ['security-lead'],      // Ersetze mit echtem Username
+                'P0: Critical': ['team-lead'],      // Ersetze mit echtem Username  
+                'bug': ['dev-lead'],                // Ersetze mit echtem Username
+                'documentation': ['docs-lead']      // Ersetze mit echtem Username
+              };
+              
+              for (const [label, assignees] of Object.entries(assignments)) {
+                if (labelNames.includes(label)) {
+                  console.log(`Found label '${label}', would assign to: ${assignees.join(', ')}`);
+                  
+                  // UNCOMMENT diese Zeilen wenn du echte Usernamen eingetragen hast:
+                  /*
+                  await github.rest.issues.addAssignees({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    issue_number: issue.number,
+                    assignees: assignees
+                  });
+                  console.log('✅ Assignees added');
+                  */
+                  break; // Nur erste Zuweisung
+                }
               }
             } catch (error) {
-              console.error('Error in auto-assign:', error);
-              // Don't fail the whole workflow if assignment fails
+              console.error('⚠️ Error in auto-assign:', error.message);
+              // Don't fail the workflow
             }
 
       - name: Comment on new issues
         if: github.event.action == 'opened'
         uses: actions/github-script@v7
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.TRIAGE_TOKEN }}
           script: |
             try {
+              const issueNumber = context.payload.issue.number;
+              console.log(`Creating welcome comment for issue #${issueNumber}`);
+              
               await github.rest.issues.createComment({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                issue_number: context.payload.issue.number,
-                body: `Thanks for creating this issue! 🎯
+                issue_number: issueNumber,
+                body: `## 👋 Welcome!
                 
-                Our team will triage this issue soon. In the meantime, please ensure you've provided all necessary information.
+                Thanks for creating this issue #${issueNumber}! 
                 
-                **Triage Process:**
-                - 🏷️ Labels will be assigned
-                - 👤 An owner will be designated if needed
-                - 📅 Milestone will be set if applicable
-                - 🔍 Duplicates will be checked
+                ### 🔄 Automated Triage Process
                 
-                Expected response time: Within 48 hours`
+                Our automated system has:
+                - ✅ Analyzed your issue
+                - 🏷️ Applied relevant labels
+                - 📊 Set initial priority
+                
+                ### ⏱️ Response Times
+                
+                | Priority | First Response | Resolution Target |
+                |----------|---------------|-------------------|
+                | 🔴 P0: Critical | < 1 hour | < 24 hours |
+                | 🟠 P1: High | < 4 hours | < 3 days |
+                | 🟡 P2: Medium | < 24 hours | < 1 week |
+                | 🟢 P3: Low | < 72 hours | Best effort |
+                
+                ### 📋 Next Steps
+                
+                1. A team member will review your issue
+                2. Additional labels or milestones may be added
+                3. You'll be notified of any updates
+                
+                ### 💡 Tips
+                - Add more details if needed
+                - Check for similar issues
+                - Follow our [Contributing Guidelines](../blob/main/CONTRIBUTING.md)
+                
+                _This is an automated message powered by GitHub Actions with TRIAGE_TOKEN_ 🤖`
               });
+              
+              console.log('✅ Comment added successfully');
             } catch (error) {
-              console.error('Error creating comment:', error);
+              console.error('❌ Error creating comment:', error.message);
+              core.setFailed(error.message);
             }

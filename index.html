@@ -4,15 +4,30 @@
     <meta charset="UTF-8" />
     <title>Issues & Triage — Demo Artifact</title>
     <style>
-      body {
+      html
+      {
+
         font-family: "Segoe UI", Roboto, sans-serif;
-        margin: 40px 60px;
         color: #222;
+      }
+      body
+      {
+        margin: 0;
+      }
+      .body-wrap{
+        margin: 0px 60px;
         background: #fff;
         line-height: 1.6;
       }
 
       header {
+        height: 53px;
+        margin-left: 60px;
+        top: 0;
+        padding-top: 25px;
+        z-index: 923929;
+        width: calc(98% - 60px);
+        background-color: white;
         border-bottom: 1px solid #ccc;
         padding-bottom: 8px;
         margin-bottom: 30px;
@@ -82,7 +97,6 @@
         grid-template-columns: repeat(3, 1fr);
         gap: 16px;
         padding: 16px;
-        width: 75%;
         overflow: hidden;
         mask-image: linear-gradient(
           to bottom,
@@ -128,6 +142,7 @@
         font-size: 0.9em;
         color: #555;
         margin-bottom: 1.5em;
+        padding-top: 75px;
       }
 
       footer {
@@ -173,17 +188,11 @@
         background-color: #e0e0e0;
       }
 
-      .links {
-        margin-top: 2em;
-        padding-top: 1.5em;
-        border-top: 1px solid #ddd;
-      }
 
       .link-buttons {
         display: flex;
         gap: 1em;
-        flex-wrap: wrap;
-        margin-top: 1em;
+        flex-wrap: wrap;    align-items: center;
       }
 
       .link-btn {
@@ -192,6 +201,7 @@
 
         justify-content: center;
         gap: 0.4em;
+        height: 20px;
         padding: 0.6em 1.2em;
         border: 1px solid #aaa;
         border-radius: 6px;
@@ -211,9 +221,28 @@
     </style>
   </head>
   <body>
-    <header>
+    <header style="display: flex; justify-content: space-between; position: fixed;">
       <h1>Issues & Triage — Demo Artifact</h1>
+        <div class="link-buttons">
+          <p style="color: gray;">Quicklinks: </p>
+          <a
+            href="https://github.com/HSLU-Exercise/scope-your-project-gruppe-1"
+            target="_blank"
+            class="link-btn"
+          >
+           GitHub Repository ↗️
+          </a>
+  
+          <a
+            href="https://github.com/HSLU-Exercise/scope-your-project-gruppe-1/issues"
+            target="_blank"
+            class="link-btn"
+          >
+          Unsere Issues ↗️
+          </a>
+        </div>
     </header>
+    <div class="body-wrap">
     <p class="explanation">
       Diese Seite ist Teil eines Demo-Artefakts, das zeigt, wie
       <strong>Issues</strong> und <strong>Triage</strong> in IT-Projekten
@@ -225,9 +254,9 @@
         <h2>Issues</h2>
         <p>
           <strong>Issues</strong> in der Softwareentwicklung sind <b>Probleme</b> oder
-          <b>Anfragen</b>, die nachverfolgt werden. Je nach Projektmethode, gibt es verschiedene Issuetypen, wie z.B. ein Bug oder ein Feature.
+          <b>Anfragen</b>, die nachverfolgt werden. Je nach Projektmethode, gibt es verschiedene Issuetypen, wie z.B. ein <b>Bug</b> oder ein <b>Feature</b>.
           <p></p>
-            Zur Veranschaulichung haben wir einen Demo-Shop namens <b>"Fakecalando"</b> erstellt. 
+            Zur Veranschaulichung haben wir einen <b>Demo-Shop namens "Fakecalando"</b> erstellt. 
             Dort gibt es Produkte, die jedoch <b>nicht</b> in den Warenkorb gelegt werden können. 
             Eine einfache Erweiterungsidee wäre ein Filter-Dropdown, mit dem die Produkte gefiltert werden können. 
             <p></p>
@@ -235,21 +264,13 @@
         </p>
         <ul>
           <li>
-            <strong>Ein Bug 🐞:</strong> Der <em>„In den Warenkorb“</em>-Button
-            aktualisiert den Warenkorb nicht — ein funktionaler Fehler.
+            Ein <b>Fehler = Bug 🐞:</b>  Der <b>"In den Warenkorb"-Button</b>
+            funktioniert nicht.
           </li>
           <li>
-            <strong>Ein Feature💡:</strong> Ein <em>Produktfilter</em>-Dropdown
-            fehlt — eine Feature-Anfrage.
+            Eine <b>Erweiterung = Feature💡:</b> Mögliches <b>Suchfeld</b> oder <b>Produktefilter</b>-Dropdown.
           </li>
         </ul>
-        <a
-          href="https://github.com/HSLU-Exercise/scope-your-project-gruppe-1/issues"
-          target="_blank"
-          class="link-btn"
-        >
-          Unsere Issues ↗️
-        </a>
       </section>
 
       <!-- Right "Shop Window" -->
@@ -295,6 +316,46 @@
         </div>
 
         <div class="shop-content">
+          <div style="width: 75%;">
+            <div style="margin-left: 10px; margin-top: 10px; width:50%; display: flex; align-items: center; gap: 10px; ">
+              <!-- Search Field -->
+              <div
+                style="
+                  display: flex;
+                  align-items: center;
+                  border: 2px dotted #aaa;
+                  border-radius: 8px;
+                  padding: 6px 10px;
+                  background: #fafafa;
+                  color: #555;
+                  flex: 1;
+                  min-width: 220px;
+                "
+              >
+                <span style="opacity: 0.6; margin-right: 6px;">🔍</span>
+                <span style="opacity: 0.5;">Search...</span>
+              </div>
+            
+              <!-- Filter Dropdown -->
+              <div
+                style="
+                  display: flex;
+                  align-items: center;
+                  justify-content: space-between;
+                  border: 2px dotted #aaa;
+                  border-radius: 8px;
+                  padding: 6px 12px;
+                  background: #fafafa;
+                  color: #555;
+                  min-width: 120px;
+                  cursor: pointer;
+                "
+              >
+                <span>Filter</span>
+                <span style="opacity: 0.6;">▾</span>
+              </div>
+            </div>
+            
           <div class="product-grid">
             <div class="product">
               <img
@@ -351,10 +412,14 @@
               <button>In den Warenkorb</button>
             </div>
           </div>
+        </div>
 
           <aside class="cart-sidebar">
             <h4 style="border-bottom: 1px solid lightgray">🛒 Warenkorb</h4>
             <p><em>Keine Produkte hinzugefügt…</em></p>
+            <p id="addCartError" style="color: darkred; opacity: 0.5; font-weight: bold; display: none; margin-top: 10px;">
+              <em>Fehler: Produkt konnte nicht in den Warenkorb hinzugefügt werden! <br>(ErrCode: 503)</em>
+            </p>
           </aside>
         </div>
       </div>
@@ -364,33 +429,40 @@
       <div style="flex: 1">
         <h2 style="border-bottom: 1px solid #ddd;        width: fit-content;">Triage</h2>
         <p>
-          <strong>Triage</strong> bedeutet, zu entscheiden, welche Issues am
-          wichtigsten sind und zuerst gelöst werden sollten:
+            <strong>Triage</strong> bedeutet, eine <b>Bewertung und Einstufung der Issues</b> vorzunehmen. 
+            Dabei werden Begriffe, wie z.B. die <b>Art</b> oder die <b>Priorität</b> der Anfragen vergeben, um sie sinnvoll <b>später im Entwicklungsprozess</b> abzuarbeiten:
           <p></p>
           Ursprünglich stammt der Begriff <strong>Triage</strong> aus dem
           medizinischen Kontext, wobei Ärzte entscheiden müssen, welche
-          Patienten mit leichten Verletzungen warten können und welche mit
-          schwereren, lebensbedrohlichen Verletzungen sofortige Hilfe benötigen.
+          Patienten mit <b>leichten</b> Verletzungen warten können und welche mit
+          <b>schwereren, lebensbedrohlichen</b> Verletzungen sofortige Hilfe benötigen. 
+          <p></p>
+          In der IT ist die Triage von Anfragen wichtig, um die
+          verfügbaren Ressourcen effizient einzusetzen. <br/>In meisten Projekten werden Prioritäten anhand des Kernprozesses entschieden.
+          Je grundlegender eine Funktionalität betroffen ist oder ausfällt, desto dringender ist eine schnelle Reaktion erforderlich.
+          <br/>Mögliche Anfrage Prioritäten:
         </p>
         <ul>
           <li>
-            🔴 <strong>Kritisch:</strong> Funktion „In den Warenkorb“
-            reparieren.
+            🔴 <strong>Eskalation:</strong> Funktion/Knopf "In den Warenkorb"
+            reparieren. Sonst kein Verkauf möglich. 
+            <br/>Lösungszeit z.B. < 2 Stunden.
           </li>
           <li>
-            🟡 <strong>Mittel:</strong> Feature „Filter hinzufügen“ umsetzen.
+            🟠 <strong>Hoch:</strong> Webseite hat sehr lange Ladezeiten. Der Server hat starke Auslastung. 
+            <br/>Lösungszeit z.B. < 8 Stunden.
           </li>
-          <li>🟢 <strong>Niedrig:</strong> Layout-Abstände anpassen.</li>
+          <li>
+            🟡 <strong>Mittel:</strong> Feature "Suchfeld"/"Produktefilter" umsetzen. Benutzerintuitiv verbessern. 
+            <br/>Lösungszeit z.B. < 24 Stunden.
+          </li>
+          <li>🟢 <strong>Niedrig:</strong> Layout-Abstände anpassen. Knopf statt rund, eckig machen. 
+            <br/>Lösungszeit z.B. < 80 Stunden.</li>
         </ul>
 
         <p>
-          Die tatsächlich triagierten Issues können Sie in unserem GitHub
-          finden:
-          <a
-            href="https://github.com/YOURUSERNAME/YOURREPO/issues"
-            target="_blank"
-            >GitHub Issues</a
-          >
+          Die tatsächlich triagierten Issues dieser Demo haben wir in unserem <b>GitHub Repository</b>.
+          
         </p>
       </div>
       <div style="flex: 1.5">
@@ -424,32 +496,21 @@
         </div>
       </div>
     </div>
-    <div>
-      <section class="links">
-        <h2>Quicklinks</h2>
-        <div class="link-buttons">
-          <a
-            href="https://github.com/HSLU-Exercise/scope-your-project-gruppe-1"
-            target="_blank"
-            class="link-btn"
-          >
-            🔗 GitHub Repository ↗️
-          </a>
-
-          <a
-            href="https://github.com/HSLU-Exercise/scope-your-project-gruppe-1/issues"
-            target="_blank"
-            class="link-btn"
-          >
-            🐛💡 Unsere Issues ↗️
-          </a>
-        </div>
-      </section>
-    </div>
     <footer>
       <p style="color: gray;">
         <strong>Projektmitglieder:</strong> Alina Karrica, Jan Diethelm, Joachim Steiger, Philipp Nicollier
       </p>
     </footer>
+  </div>
   </body>
+
+  <script>
+    document.querySelectorAll("button").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const error = document.getElementById("addCartError");
+        error.style.display = "block";
+        error.style.color = "red";
+      });
+    });
+  </script>
 </html>

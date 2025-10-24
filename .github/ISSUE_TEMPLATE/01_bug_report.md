@@ -3,8 +3,7 @@ name: "\U0001F41B Bug Report"
 about: Create a report to help us improve
 title: "[BUG] "
 type: bug
-prio: normal
-labels: enhancement, needs-triage
+labels: enhancement, medium-prio, needs-triage
 assignees: ''
 
 ---

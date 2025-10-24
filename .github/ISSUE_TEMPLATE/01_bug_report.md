@@ -2,7 +2,8 @@
 name: "\U0001F41B Bug Report"
 about: Create a report to help us improve
 title: "[BUG] "
-labels: bug, enhancement, needs-triage
+type: bug
+labels: enhancement, needs-triage
 assignees: ''
 
 ---
